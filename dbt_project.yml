@@ -1,20 +1,34 @@
-# Dale un nombre a tu proyecto (sin espacios ni guiones)
+# --- Configuración General del Proyecto ---
 name: 'animum_dwh'
 version: '1.0.0'
 config-version: 2
+profile: 'default'  # dbt Cloud lo gestiona
 
-# Perfil de conexión (dbt Cloud lo gestiona, pero es bueno tenerlo)
-profile: 'default'
-
-# Aquí va la configuración del paquete de Google Ads que te di antes
+# --- Configuración de Modelos (DESTINO por defecto) ---
 models:
-  google_ads:
-    # El nombre de tu proyecto en GCP
-    +database: "animum-dev-datawarehouse"  
-    
-    # !!! RECUERDA CAMBIAR ESTO !!!
-    # El dataset donde están tus tablas p_...
-    +schema: "gads_01raw_01"           
-    
-    # Le dice al paquete que use las tablas de DTS
-    +using_data_transfer_service: true
+  +database: "animum-dev-datawarehouse"
+  +schema: "gads_01raw_01_dbt"  # dataset destino para lo que construye dbt (staging/modelado)
+
+# --- Variables de paquetes (ORIGEN de lectura) ---
+vars:
+  # Dónde está tu RAW de Google Ads (DTS)
+  google_ads_database: "animum-dev-datawarehouse"
+  google_ads_schema: "gads_01raw_01"
+
+  # Remapeo: tablas de métricas (stats)
+  google_ads_account_stats_identifier: "ads_AccountStats_7066383129"
+  google_ads_campaign_stats_identifier: "ads_CampaignStats_7066383129"
+  google_ads_ad_group_stats_identifier: "ads_AdGroupStats_7066383129"
+  google_ads_keyword_stats_identifier: "ads_KeywordStats_7066383129"
+  google_ads_ad_stats_identifier: "ads_AdStats_7066383129"
+
+  # Remapeo: “history / entidades” que el paquete usa como dimensión
+  google_ads_account_history_identifier: "ads_Customer_7066383129"          # customer
+  google_ads_campaign_history_identifier: "ads_Campaign_7066383129"         # campaign
+  google_ads_ad_group_history_identifier: "ads_AdGroup_7066383129"          # ad_group
+  google_ads_ad_history_identifier: "ads_Ad_7066383129"                     # ad
+  google_ads_ad_group_criterion_history_identifier: "ads_AdGroupCriterion_7066383129"  # si tu paquete lo pide
+
+  # (opcional) si NO tienes Search Term Keyword Stats en tu DTS:
+  google_ads__using_search_term_keyword_stats: false
+
